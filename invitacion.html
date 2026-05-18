@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Invitación</title>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: "Georgia", serif;
+    background-image: url("https://images.unsplash.com/photo-1506784983877-45594efa4cbe");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+}
+
+body::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 220, 180, 0.25);
+    backdrop-filter: blur(4px);
+}
+
+.envelope {
+    width: 320px;
+    height: 220px;
+    background: #8d6e63;
+    position: relative;
+    cursor: pointer;
+    border-radius: 6px;
+    z-index: 2;
+    transform: rotate(-2deg);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+}
+
+.flap {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #a1887f;
+    clip-path: polygon(0 0, 100% 0, 50% 60%);
+    transform-origin: top;
+    transition: 0.6s;
+}
+
+.open .flap { transform: rotateX(180deg); }
+
+.card {
+    position: absolute;
+    width: 90%;
+    left: 5%;
+    top: 20%;
+    background: #fffdf8;
+    padding: 20px;
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: 0.6s;
+}
+
+.open .card {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hidden { display:none; }
+
+button {
+    margin-top:10px;
+    padding:10px;
+    width:100%;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    position: relative;
+}
+
+.primary { background:#5d4037; color:white; }
+.option { background:#efebe9; }
+
+input {
+    width:100%;
+    padding:8px;
+    margin-top:8px;
+}
+
+/* BOTÓN QUE ESCAPA */
+.escape {
+    position: relative;
+    transition: 0.2s;
+}
+
+</style>
+</head>
+
+<body>
+
+<audio id="musica" loop preload="auto">
+<source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+<div class="envelope" id="envelope" onclick="abrirSobre()">
+    <div class="flap"></div>
+
+    <div class="card">
+
+        <div id="inicio">
+            <h2>Para TN</h2>
+            <p>No es una invitación común.<br></p>
+            <button class="primary" onclick="start(event)">Abrir</button>
+        </div>
+
+        <div id="p1" class="hidden">
+            <p>Si pudieras elegir una noche sin interrupciones, ¿cómo sería?</p>
+            <button onclick="next()">Planificado y programado</button>
+            <button onclick="next()">Algo espontáneo, sin plan previo</button>
+        </div>
+
+        <div id="p2" class="hidden">
+            <p>Teniendo en cuenta lo anterior y posiblemente ya te imaginaras quien soy, ¿Te gustaría salir conmigo?</p>
+            <button onclick="acepta()">Sí</button>
+            <button onclick="rechazar()">No</button>
+        </div>
+
+        <div id="p3" class="hidden">
+            <p>¿Te gustaría que nuestra salida sea...?</p>
+            <button onclick="mostrarPlaneada()">Planeada</button>
+            <button onclick="mostrarImprovisada()">Improvisada</button>
+        </div>
+
+        <div id="planeada" class="hidden">
+            <p>Elige fecha y hora:</p>
+            <input type="text" placeholder="Ej: Viernes 23:00">
+            <input type="text" placeholder="Algún detalle">
+
+            <form action="https://formspree.io/f/mnjragqo" method="POST">
+                <button class="primary">Confirmar</button>
+            </form>
+        </div>
+
+        <div id="improvisada" class="hidden">
+            <p>Entonces…</p>
+
+            <form action="https://formspree.io/f/mpqbeowq" method="POST">
+                <button class="primary">Hoy 22:30</button>
+            </form>
+
+            <button class="option escape" id="noBtn">No aceptar</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+function abrirSobre(){
+    document.getElementById("envelope").classList.add("open");
+}
+
+function start(e){
+    e.stopPropagation();
+    document.getElementById("inicio").classList.add("hidden");
+    document.getElementById("p1").classList.remove("hidden");
+
+    let audio = document.getElementById("musica");
+    audio.volume = 0;
+    audio.play().catch(()=>{});
+
+    let v = 0;
+    let fade = setInterval(()=>{
+        if(v < 0.18){
+            v += 0.02;
+            audio.volume = v;
+        } else clearInterval(fade);
+    },200);
+}
+
+function next(){
+    document.getElementById("p1").classList.add("hidden");
+    document.getElementById("p2").classList.remove("hidden");
+}
+
+function acepta(){
+    document.getElementById("p2").classList.add("hidden");
+    document.getElementById("p3").classList.remove("hidden");
+}
+
+function rechazar(){
+    alert("Respuesta inválida.");
+}
+
+function mostrarPlaneada(){
+    document.getElementById("p3").classList.add("hidden");
+    document.getElementById("planeada").classList.remove("hidden");
+}
+
+function mostrarImprovisada(){
+    document.getElementById("p3").classList.add("hidden");
+    document.getElementById("improvisada").classList.remove("hidden");
+}
+
+/* BOTÓN QUE ESCAPA */
+const btn = document.getElementById("noBtn");
+
+document.addEventListener("mousemove", function(e){
+    const rect = btn.getBoundingClientRect();
+
+    const distance = Math.hypot(
+        e.clientX - (rect.left + rect.width/2),
+        e.clientY - (rect.top + rect.height/2)
+    );
+
+    if(distance < 120){
+        let x = (Math.random() - 0.5) * 150;
+        let y = (Math.random() - 0.5) * 150;
+
+        btn.style.transform = `translate(${x}px, ${y}px)`;
+    }
+});
+
+/* PARA CELULAR */
+btn.addEventListener("touchstart", function(e){
+    e.preventDefault();
+
+    let x = (Math.random() - 0.5) * 150;
+    let y = (Math.random() - 0.5) * 150;
+
+    btn.style.transform = `translate(${x}px, ${y}px)`;
+});
+
+</script>
+
+</body>
+</html>
