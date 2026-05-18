@@ -63,6 +63,8 @@ body::after {
     opacity: 0;
     transform: translateY(30px);
     transition: 0.6s;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .open .card {
@@ -89,6 +91,7 @@ input {
     width:100%;
     padding:8px;
     margin-top:8px;
+    box-sizing: border-box;
 }
 
 /* BOTÓN QUE ESCAPA */
@@ -97,14 +100,38 @@ input {
     transition: 0.2s;
 }
 
+/* REPRODUCTOR DE MÚSICA */
+.music-player {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.music-player h4 {
+    margin: 0 0 10px 0;
+    color: #5d4037;
+    font-size: 14px;
+}
+
+.music-player audio {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.music-info {
+    font-size: 12px;
+    color: #999;
+    margin-top: 10px;
+    line-height: 1.4;
+}
+
 </style>
 </head>
 
 <body>
-
-<audio id="musica" loop preload="auto">
-<source src="musica.mp3" type="audio/mpeg">
-</audio>
 
 <div class="envelope" id="envelope" onclick="abrirSobre()">
     <div class="flap"></div>
@@ -112,6 +139,17 @@ input {
     <div class="card">
 
         <div id="inicio">
+            <div class="music-player">
+                <h4>🎵 Música de Fondo</h4>
+                <audio id="musicaPersonalizada" controls>
+                    <source src="musica.mp3" type="audio/mpeg">
+                    Tu navegador no soporta audio HTML5
+                </audio>
+                <div class="music-info">
+                    ♪ Grover Washington Jr. - Just the Two of Us
+                </div>
+            </div>
+
             <h2>Para TN</h2>
             <p>No es una invitación común.<br></p>
             <button class="primary" onclick="start(event)">Abrir</button>
@@ -169,7 +207,7 @@ function start(e){
     document.getElementById("inicio").classList.add("hidden");
     document.getElementById("p1").classList.remove("hidden");
 
-    let audio = document.getElementById("musica");
+    let audio = document.getElementById("musicaPersonalizada");
     audio.volume = 0;
     audio.play().catch(()=>{});
 
@@ -209,31 +247,33 @@ function mostrarImprovisada(){
 /* BOTÓN QUE ESCAPA */
 const btn = document.getElementById("noBtn");
 
-document.addEventListener("mousemove", function(e){
-    const rect = btn.getBoundingClientRect();
+if(btn) {
+    document.addEventListener("mousemove", function(e){
+        const rect = btn.getBoundingClientRect();
 
-    const distance = Math.hypot(
-        e.clientX - (rect.left + rect.width/2),
-        e.clientY - (rect.top + rect.height/2)
-    );
+        const distance = Math.hypot(
+            e.clientX - (rect.left + rect.width/2),
+            e.clientY - (rect.top + rect.height/2)
+        );
 
-    if(distance < 120){
+        if(distance < 120){
+            let x = (Math.random() - 0.5) * 150;
+            let y = (Math.random() - 0.5) * 150;
+
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+    });
+
+    /* PARA CELULAR */
+    btn.addEventListener("touchstart", function(e){
+        e.preventDefault();
+
         let x = (Math.random() - 0.5) * 150;
         let y = (Math.random() - 0.5) * 150;
 
         btn.style.transform = `translate(${x}px, ${y}px)`;
-    }
-});
-
-/* PARA CELULAR */
-btn.addEventListener("touchstart", function(e){
-    e.preventDefault();
-
-    let x = (Math.random() - 0.5) * 150;
-    let y = (Math.random() - 0.5) * 150;
-
-    btn.style.transform = `translate(${x}px, ${y}px)`;
-});
+    });
+}
 
 </script>
 
